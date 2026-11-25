@@ -1,0 +1,11 @@
+{
+  "name": "yuehai-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "YueHai助手：AE CEP 与浏览器双模式素材预览面板",
+  "scripts": {
+    "test": "node --test tests/asset-model.test.cjs tests/preset-library.test.cjs tests/preview-generation.test.cjs tests/subtitle-model.test.cjs tests/subtitle-jobs.test.cjs tests/subtitle-source.test.cjs tests/template-model.test.cjs tests/preset-apply.test.cjs tests/adjustment-layers.test.cjs",
+    "test:ui": "node tests/folder-menu.browser.cjs && node tests/global-search.browser.cjs && node tests/preset-management.browser.cjs && node tests/generation-ui.browser.cjs && node tests/subtitle-ui.browser.cjs && node tests/template-ui.browser.cjs && node tests/template-responsive.browser.cjs && node tests/preset-apply.browser.cjs && node tests/adjustment-layers.browser.cjs",
+    "preview": "node tools/serve.cjs"
+  }
+}

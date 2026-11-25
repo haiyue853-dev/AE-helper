@@ -1,0 +1,24 @@
+const fs=require('fs'),path=require('path'),cp=require('child_process');
+const root=path.resolve(__dirname,'..'),work=path.join(root,'artifacts/template-smoke');fs.mkdirSync(work,{recursive:true});const report=path.join(work,'native-report.json');if(fs.existsSync(report))fs.unlinkSync(report);const q=s=>JSON.stringify(s.replace(/\\/g,'/'));
+const script=`(function(){var report=new File(${q(report)});report.encoding='UTF-8';function out(value){report.open('w');report.write(value);report.close();}function parse(value){var result=eval('('+value+')');if(!result.ok)throw Error(result.error);return result;}function check(ok,message){if(!ok)throw Error(message);}
+try{check(app.project.numItems===0,'需要独立的空白 AE 进程');app.saveProjectOnCrash=false;app.beginSuppressDialogs();$.evalFile(new File(${q(path.join(root,'YueHaiAssistant/jsx/template-engine.jsx'))}));
+var footage=app.project.importFile(new ImportOptions(new File(${q(path.join(root,'artifacts/subtitle-smoke/中文测试视频.mp4'))}))),child=app.project.items.addComp('替换预合成',360,444,1,3,25),a=child.layers.add(footage),b=child.layers.add(footage),text=child.layers.addText('原始标题');
+a.name='视频位置';a.startTime=-1;a.inPoint=0;a.outPoint=3;var tr=a.property('ADBE Transform Group');tr.property('ADBE Position').setValue([171,223]);tr.property('ADBE Scale').setValue([82,91]);tr.property('ADBE Rotate Z').setValueAtTime(0,5);tr.property('ADBE Rotate Z').setValueAtTime(2,25);a.locked=true;
+b.name='图片位置';b.outPoint=2;
+var tp=text.property('ADBE Text Properties').property('ADBE Text Document'),doc=tp.value;doc.fontSize=38;doc.fillColor=[1,.3,.2];doc.text='标题一';tp.setValueAtTime(0,doc);doc.text='标题二';tp.setValueAtTime(2,doc);
+var main=app.project.items.addComp('模板主合成',360,444,1,6,25);main.layers.add(child);var second=main.layers.add(child);second.startTime=3;main.openInViewer();
+var scan=parse(YueHaiTemplates.scan(main.id));check(scan.media.length===2&&scan.texts.length===1,'嵌套扫描数量错误');check(scan.texts[0].shared,'未识别复用预合成');
+var ma=null,mb=null;for(var i=0;i<scan.media.length;i++){if(scan.media[i].name==='视频位置')ma=scan.media[i];else mb=scan.media[i];}check(ma.sourceIn===1&&ma.need===3,'槽位时长错误');
+var bad={rootId:main.id,media:[{key:ma.key,signature:ma.signature,file:${q(path.join(root,'artifacts/subtitle-smoke/背景噪声测试.mp4'))},start:5,fit:'fill'},{key:mb.key,signature:mb.signature,file:'D:/__missing_yuehai__.mp4',start:0}],texts:[]},before=app.project.numItems;
+var failed=eval('('+YueHaiTemplates.apply(bad)+')');check(!failed.ok&&app.project.numItems===before&&a.source.id===footage.id,'失败后没有完整清理');
+var config={rootId:main.id,media:[{key:ma.key,signature:ma.signature,file:${q(path.join(root,'artifacts/subtitle-smoke/背景噪声测试.mp4'))},start:5,fit:'fill'},{key:mb.key,signature:mb.signature,file:${q(path.join(root,'预览图.jpg'))},start:0,fit:'contain'}],texts:[{key:scan.texts[0].key,signature:scan.texts[0].signature,text:'新的标题 \\"中文\\"'}]};
+var result=parse(YueHaiTemplates.apply(config));check(result.media===2&&result.texts===1,'替换数量错误');
+check(a.source instanceof CompItem&&a.source.width===360&&a.source.height===444,'画布尺寸变化');check(a.source.layer(1).startTime===-4&&a.startTime===-1&&a.inPoint===0&&a.outPoint===3,'片段时间错误');
+check(a.locked&&tr.property('ADBE Position').value[0]===171&&tr.property('ADBE Scale').value[1]===91&&tr.property('ADBE Rotate Z').numKeys===2&&tr.property('ADBE Rotate Z').keyValue(2)===25,'原图层变换或动画被改变');
+check(tp.numKeys===2&&tp.keyValue(1).text===config.texts[0].text&&tp.keyValue(2).text===config.texts[0].text&&tp.keyValue(1).fontSize===38,'文字关键帧或样式丢失');
+check(footage.file.fsName===new File(${q(path.join(root,'artifacts/subtitle-smoke/中文测试视频.mp4'))}).fsName,'原素材被替换');
+var again=parse(YueHaiTemplates.scan(main.id));check(again.media.length===2&&again.texts.length===1,'再次扫描丢失槽位');var stale=eval('('+YueHaiTemplates.apply(config)+')');check(!stale.ok,'未拦截过期替换清单');
+var image=new File(${q(path.join(work,'result.png'))});child.saveFrameToPng(1,image);out('{"ok":true,"nestedMedia":2,"nestedText":1,"sharedComp":true,"clipStart":5,"transformsPreserved":true,"textKeyframesPreserved":true,"failureRollback":true,"staleGuard":true,"rescannable":true}');app.endSuppressDialogs(false);
+}catch(e){out('{"error":"'+encodeURIComponent(e.toString())+'"}');}}());`;
+const driver=path.join(process.env.TEMP,'yuehai-template-smoke.jsx');fs.writeFileSync(driver,'\uFEFF'+script);
+const child=cp.spawn('D:/AE2023/Adobe After Effects 2023/Support Files/AfterFX.exe',['-m','-r',driver],{windowsHide:true,stdio:'ignore'}),started=Date.now();const timer=setInterval(()=>{if(fs.existsSync(report)){clearInterval(timer);child.kill();const result=JSON.parse(fs.readFileSync(report,'utf8'));console.log(result);if(!result.ok)process.exitCode=1;}else if(Date.now()-started>90000){clearInterval(timer);child.kill();console.error('Native template smoke timed out');process.exitCode=1;}},500);

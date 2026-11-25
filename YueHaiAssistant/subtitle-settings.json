@@ -1,0 +1,6 @@
+{
+  "workspaceRoot": "F:/YueHai助手",
+  "python": "runtime/subtitles/python/python.exe",
+  "model": "models/faster-whisper-small",
+  "nativeEngine": "runtime/subtitles/universal/YueHaiAsr.exe"
+}

@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><AssemblyName>YueHaiAsr</AssemblyName><InvariantGlobalization>true</InvariantGlobalization></PropertyGroup>
+  <ItemGroup><PackageReference Include="Whisper.net" Version="1.9.1"/><PackageReference Include="Whisper.net.Runtime" Version="1.9.1"/><PackageReference Include="Whisper.net.Runtime.Vulkan" Version="1.9.1"/><PackageReference Include="Whisper.net.Runtime.NoAvx" Version="1.9.1"/></ItemGroup>
+</Project>
