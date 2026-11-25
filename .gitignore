@@ -1,0 +1,47 @@
+node_modules/
+artifacts/
+分析/*静态分析.json
+*.log
+.superpowers/
+
+# Local models, runtimes and generated user content
+/models/
+/runtime/
+/预览素材/
+/字幕/
+/套模板/
+/分析/
+/docs/
+/预览图.jpg
+*.zip
+*.ffx
+*.aep
+*.aepx
+*.mp4
+*.webm
+*.mov
+*.wav
+*.mp3
+
+# Private media folders and junctions; keep the panel icon
+/YueHaiAssistant/assets/*
+!/YueHaiAssistant/assets/logo.svg
+
+# Native build output and Python caches
+**/bin/
+**/obj/
+__pycache__/
+*.py[cod]
+*.exe
+*.dll
+*.pdb
+
+# Local credentials and editor state
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.vs/
+.vscode/
+
